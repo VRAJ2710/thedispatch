@@ -1,214 +1,103 @@
 ---
-title: "Markdown Style Guide"
-description: "Here is a sample of some basic Markdown syntax that can be used when writing Markdown content in Astro."
-pubDate: "Jun 19 2024"
+title: "TypeScript Without the Pain: Practical Patterns for Everyday Code"
+description: "TypeScript can be a joy or a slog depending on how you use it. Here are patterns that keep it useful without making it bureaucratic."
+pubDate: "Apr 07 2025"
 heroImage: "/blog-placeholder-1.jpg"
 ---
 
-Here is a sample of some basic Markdown syntax that can be used when writing Markdown content in Astro.
+TypeScript adoption has hit an inflection point. Most new JavaScript projects start typed by default, and the tooling — editors, build tools, linters — has matured significantly. But TypeScript can still become a source of frustration when you fight the type system instead of working with it.
 
-## Headings
+Here are patterns that keep TypeScript practical.
 
-The following HTML `<h1>`—`<h6>` elements represent six levels of section headings. `<h1>` is the highest section level while `<h6>` is the lowest.
+## Prefer inference over annotation
 
-# H1
+The most common TypeScript mistake is annotating everything. TypeScript is good at inference — let it do the work.
 
-## H2
+```typescript
+// Unnecessary
+const count: number = 0;
+const greet: (name: string) => string = (name) => `Hello, ${name}`;
 
-### H3
-
-#### H4
-
-##### H5
-
-###### H6
-
-## Paragraph
-
-Xerum, quo qui aut unt expliquam qui dolut labo. Aque venitatiusda cum, voluptionse latur sitiae dolessi aut parist aut dollo enim qui voluptate ma dolestendit peritin re plis aut quas inctum laceat est volestemque commosa as cus endigna tectur, offic to cor sequas etum rerum idem sintibus eiur? Quianimin porecus evelectur, cum que nis nust voloribus ratem aut omnimi, sitatur? Quiatem. Nam, omnis sum am facea corem alique molestrunt et eos evelece arcillit ut aut eos eos nus, sin conecerem erum fuga. Ri oditatquam, ad quibus unda veliamenimin cusam et facea ipsamus es exerum sitate dolores editium rerore eost, temped molorro ratiae volorro te reribus dolorer sperchicium faceata tiustia prat.
-
-Itatur? Quiatae cullecum rem ent aut odis in re eossequodi nonsequ idebis ne sapicia is sinveli squiatum, core et que aut hariosam ex eat.
-
-## Images
-
-### Syntax
-
-```markdown
-![Alt text](./full/or/relative/path/of/image)
+// Better — TypeScript infers these correctly
+const count = 0;
+const greet = (name: string) => `Hello, ${name}`;
 ```
 
-### Output
+Reserve explicit annotations for function return types (as documentation and a safety net) and for cases where inference goes wrong.
 
-![blog placeholder](/blog-placeholder-about.jpg)
+## Use `satisfies` for config objects
 
-## Blockquotes
+The `satisfies` operator (added in TS 4.9) validates that a value matches a type without widening it. This is especially useful for config objects:
 
-The blockquote element represents content that is quoted from another source, optionally with a citation which must be within a `footer` or `cite` element, and optionally with in-line changes such as annotations and abbreviations.
+```typescript
+type Config = {
+  port: number;
+  host: string;
+};
 
-### Blockquote without attribution
+const config = {
+  port: 3000,
+  host: 'localhost',
+  debug: true, // extra property — caught at compile time
+} satisfies Config;
 
-#### Syntax
-
-```markdown
-> Tiam, ad mint andaepu dandae nostion secatur sequo quae.  
-> **Note** that you can use _Markdown syntax_ within a blockquote.
+// config.port is still typed as 3000 (literal), not number
 ```
 
-#### Output
+## Narrow with discriminated unions
 
-> Tiam, ad mint andaepu dandae nostion secatur sequo quae.  
-> **Note** that you can use _Markdown syntax_ within a blockquote.
+When you have types that can be one of several shapes, discriminated unions make exhaustive checks clean:
 
-### Blockquote with attribution
+```typescript
+type Result<T> =
+  | { ok: true; value: T }
+  | { ok: false; error: string };
 
-#### Syntax
-
-```markdown
-> Don't communicate by sharing memory, share memory by communicating.<br>
-> — <cite>Rob Pike[^1]</cite>
+function handle<T>(result: Result<T>) {
+  if (result.ok) {
+    return result.value; // T
+  }
+  console.error(result.error); // string
+}
 ```
 
-#### Output
+TypeScript narrows `result` inside each branch automatically. Add a `never` check at the end if you want the compiler to enforce exhaustiveness.
 
-> Don't communicate by sharing memory, share memory by communicating.<br>
-> — <cite>Rob Pike[^1]</cite>
+## Keep `unknown` at system boundaries
 
-[^1]: The above quote is excerpted from Rob Pike's [talk](https://www.youtube.com/watch?v=PAAkCSZUG1c) during Gopherfest, November 18, 2015.
+`any` is a type-system escape hatch. `unknown` is the correct type for values you haven't validated yet:
 
-## Tables
+```typescript
+async function fetchUser(id: string): Promise<unknown> {
+  const response = await fetch(`/api/users/${id}`);
+  return response.json();
+}
 
-### Syntax
-
-```markdown
-| Italics   | Bold     | Code   |
-| --------- | -------- | ------ |
-| _italics_ | **bold** | `code` |
+const user = await fetchUser('123');
+// Must narrow before using:
+if (typeof user === 'object' && user !== null && 'name' in user) {
+  console.log(user.name);
+}
 ```
 
-### Output
+Pair `unknown` with a validation library like Zod to parse and type external data safely.
 
-| Italics   | Bold     | Code   |
-| --------- | -------- | ------ |
-| _italics_ | **bold** | `code` |
+## Don't over-engineer generic utilities
 
-## Code Blocks
+Generic types are powerful but can quickly become unreadable. Before writing a complex generic, ask if a simpler union or intersection type solves the problem.
 
-### Syntax
+```typescript
+// This is usually overkill
+type DeepPartial<T> = T extends object
+  ? { [K in keyof T]?: DeepPartial<T[K]> }
+  : T;
 
-we can use 3 backticks ``` in new line and write snippet and close with 3 backticks on new line and to highlight language specific syntax, write one word of language name after first 3 backticks, for eg. html, javascript, css, markdown, typescript, txt, bash
-
-````markdown
-```html
-<!doctype html>
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<title>Example HTML5 Document</title>
-	</head>
-	<body>
-		<p>Test</p>
-	</body>
-</html>
-```
-````
-
-### Output
-
-```html
-<!doctype html>
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<title>Example HTML5 Document</title>
-	</head>
-	<body>
-		<p>Test</p>
-	</body>
-</html>
+// This is often enough
+type PartialConfig = Partial<Config>;
 ```
 
-## List Types
+TypeScript's built-in utility types (`Partial`, `Required`, `Pick`, `Omit`, `ReturnType`, `Parameters`) cover most common cases without custom generics.
 
-### Ordered List
+## The goal
 
-#### Syntax
-
-```markdown
-1. First item
-2. Second item
-3. Third item
-```
-
-#### Output
-
-1. First item
-2. Second item
-3. Third item
-
-### Unordered List
-
-#### Syntax
-
-```markdown
-- List item
-- Another item
-- And another item
-```
-
-#### Output
-
-- List item
-- Another item
-- And another item
-
-### Nested list
-
-#### Syntax
-
-```markdown
-- Fruit
-  - Apple
-  - Orange
-  - Banana
-- Dairy
-  - Milk
-  - Cheese
-```
-
-#### Output
-
-- Fruit
-  - Apple
-  - Orange
-  - Banana
-- Dairy
-  - Milk
-  - Cheese
-
-## Other Elements — abbr, sub, sup, kbd, mark
-
-### Syntax
-
-```markdown
-<abbr title="Graphics Interchange Format">GIF</abbr> is a bitmap image format.
-
-H<sub>2</sub>O
-
-X<sup>n</sup> + Y<sup>n</sup> = Z<sup>n</sup>
-
-Press <kbd>CTRL</kbd> + <kbd>ALT</kbd> + <kbd>Delete</kbd> to end the session.
-
-Most <mark>salamanders</mark> are nocturnal, and hunt for insects, worms, and other small creatures.
-```
-
-### Output
-
-<abbr title="Graphics Interchange Format">GIF</abbr> is a bitmap image format.
-
-H<sub>2</sub>O
-
-X<sup>n</sup> + Y<sup>n</sup> = Z<sup>n</sup>
-
-Press <kbd>CTRL</kbd> + <kbd>ALT</kbd> + <kbd>Delete</kbd> to end the session.
-
-Most <mark>salamanders</mark> are nocturnal, and hunt for insects, worms, and other small creatures.
+TypeScript should make you more confident when changing code, not more anxious about satisfying the compiler. When a type annotation feels like it's fighting you, step back — there's usually a simpler model that works.

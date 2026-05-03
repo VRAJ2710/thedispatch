@@ -1,16 +1,42 @@
 ---
-title: "Third post"
-description: "Lorem ipsum dolor sit amet"
-pubDate: "Jul 22 2022"
+title: "Static Sites in 2025: Still the Right Default"
+description: "In a world of server components and edge functions, the humble static site is still often the best choice."
+pubDate: "Apr 14 2025"
 heroImage: "/blog-placeholder-2.jpg"
 ---
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Vitae ultricies leo integer malesuada nunc vel risus commodo viverra. Adipiscing enim eu turpis egestas pretium. Euismod elementum nisi quis eleifend quam adipiscing. In hac habitasse platea dictumst vestibulum. Sagittis purus sit amet volutpat. Netus et malesuada fames ac turpis egestas. Eget magna fermentum iaculis eu non diam phasellus vestibulum lorem. Varius sit amet mattis vulputate enim. Habitasse platea dictumst quisque sagittis. Integer quis auctor elit sed vulputate mi. Dictumst quisque sagittis purus sit amet.
+Every few years the web pendulum swings back. We went from static pages to dynamic CMSes, to SPAs, to server-side rendering, to edge functions. And yet, in 2025, for a large class of websites, the right answer is still: generate static HTML, serve it from a CDN.
 
-Morbi tristique senectus et netus. Id semper risus in hendrerit gravida rutrum quisque non tellus. Habitasse platea dictumst quisque sagittis purus sit amet. Tellus molestie nunc non blandit massa. Cursus vitae congue mauris rhoncus. Accumsan tortor posuere ac ut. Fringilla urna porttitor rhoncus dolor. Elit ullamcorper dignissim cras tincidunt lobortis. In cursus turpis massa tincidunt dui ut ornare lectus. Integer feugiat scelerisque varius morbi enim nunc. Bibendum neque egestas congue quisque egestas diam. Cras ornare arcu dui vivamus arcu felis bibendum. Dignissim suspendisse in est ante in nibh mauris. Sed tempus urna et pharetra pharetra massa massa ultricies mi.
+Not because other approaches are wrong. Because static is often the best fit — and it's worth being clear about when.
 
-Mollis nunc sed id semper risus in. Convallis a cras semper auctor neque. Diam sit amet nisl suscipit. Lacus viverra vitae congue eu consequat ac felis donec. Egestas integer eget aliquet nibh praesent tristique magna sit amet. Eget magna fermentum iaculis eu non diam. In vitae turpis massa sed elementum. Tristique et egestas quis ipsum suspendisse ultrices. Eget lorem dolor sed viverra ipsum. Vel turpis nunc eget lorem dolor sed viverra. Posuere ac ut consequat semper viverra nam. Laoreet suspendisse interdum consectetur libero id faucibus. Diam phasellus vestibulum lorem sed risus ultricies tristique. Rhoncus dolor purus non enim praesent elementum facilisis. Ultrices tincidunt arcu non sodales neque. Tempus egestas sed sed risus pretium quam vulputate. Viverra suspendisse potenti nullam ac tortor vitae purus faucibus ornare. Fringilla urna porttitor rhoncus dolor purus non. Amet dictum sit amet justo donec enim.
+## What "static" actually means
 
-Mattis ullamcorper velit sed ullamcorper morbi tincidunt. Tortor posuere ac ut consequat semper viverra. Tellus mauris a diam maecenas sed enim ut sem viverra. Venenatis urna cursus eget nunc scelerisque viverra mauris in. Arcu ac tortor dignissim convallis aenean et tortor at. Curabitur gravida arcu ac tortor dignissim convallis aenean et tortor. Egestas tellus rutrum tellus pellentesque eu. Fusce ut placerat orci nulla pellentesque dignissim enim sit amet. Ut enim blandit volutpat maecenas volutpat blandit aliquam etiam. Id donec ultrices tincidunt arcu. Id cursus metus aliquam eleifend mi.
+A static site is one where all HTML is generated at build time. There's no server processing requests, no database queries on the critical path, no server-side session state. Just files, delivered fast.
 
-Tempus quam pellentesque nec nam aliquam sem. Risus at ultrices mi tempus imperdiet. Id porta nibh venenatis cras sed felis eget velit. Ipsum a arcu cursus vitae. Facilisis magna etiam tempor orci eu lobortis elementum. Tincidunt dui ut ornare lectus sit. Quisque non tellus orci ac. Blandit libero volutpat sed cras. Nec tincidunt praesent semper feugiat nibh sed pulvinar proin gravida. Egestas integer eget aliquet nibh praesent tristique magna.
+This is different from "no interactivity." A static site can have rich client-side JavaScript, call APIs, use authentication — it just doesn't rely on a server to render the initial HTML.
+
+## The performance case
+
+Static HTML served from a CDN edge node is about as fast as you can get on the web. There's no compute in the critical path — the file is already there, waiting to be sent.
+
+Compare that to even the most optimized server-side rendered app: you have network time, then server processing time, then response time. Each step adds latency.
+
+For content sites — blogs, documentation, marketing pages, portfolios — users don't need dynamic rendering. They need fast, readable pages. Static wins.
+
+## The reliability case
+
+A static site doesn't go down when your database has issues. It doesn't have server processes to crash, memory leaks to chase, or connection pools to exhaust. The CDN handles traffic spikes automatically.
+
+For small teams or solo developers, this is significant. Less infrastructure to manage means more time building.
+
+## When static isn't enough
+
+Static has real limits. If your content changes frequently (think live dashboards, real-time feeds, personalized content), generating HTML at build time doesn't work well. If you have millions of pages, build times can become a problem.
+
+Hybrid approaches — static by default, with dynamic routes or edge functions for specific paths — often give you the best of both worlds. Astro and similar frameworks make this easy to configure per-route.
+
+## The practical default
+
+For this site, and for most content-first projects, static is the right starting point. Build fast, deploy to the edge, add dynamic capabilities only where they're genuinely needed.
+
+Don't reach for complexity before you need it.

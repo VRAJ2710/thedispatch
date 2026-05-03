@@ -1,31 +1,73 @@
 ---
-title: "Using MDX"
-description: "Lorem ipsum dolor sit amet"
-pubDate: "Jun 01 2024"
+title: "Developer Tools That Actually Improve Your Workflow"
+description: "A roundup of tools worth adding to your setup — vetted through daily use, not benchmarks."
+pubDate: "Mar 31 2025"
 heroImage: "/blog-placeholder-5.jpg"
 ---
 
-This theme comes with the [@astrojs/mdx](https://docs.astro.build/en/guides/integrations-guide/mdx/) integration installed and configured in your `astro.config.mjs` config file. If you prefer not to use MDX, you can disable support by removing the integration from your config file.
+Most "best tools" lists are aggregated from secondhand knowledge. This one isn't. These are tools I use daily and would miss immediately if they disappeared.
 
-## Why MDX?
+## Wrangler — Cloudflare's CLI
 
-MDX is a special flavor of Markdown that supports embedded JavaScript & JSX syntax. This unlocks the ability to [mix JavaScript and UI Components into your Markdown content](https://docs.astro.build/en/guides/markdown-content/#mdx-features) for things like interactive charts or alerts.
+If you're building on Cloudflare, [Wrangler](https://developers.cloudflare.com/workers/wrangler/) is the command-line interface for everything: deploying Workers, managing KV namespaces, tailing logs, running local dev environments. The `wrangler dev` experience is genuinely fast — local hot reload with the same V8 runtime as production.
 
-If you have existing content authored in MDX, this integration will hopefully make migrating to Astro a breeze.
+```bash
+npx wrangler dev      # local dev with hot reload
+npx wrangler deploy   # ship to production
+npx wrangler tail     # stream live logs from production
+```
 
-## Example
+## Zod — schema validation
 
-Here is how you import and use a UI component inside of MDX.  
-When you open this page in the browser, you should see the clickable button below.
+[Zod](https://zod.dev/) is a TypeScript-first schema validation library. It does one thing: lets you define a schema and validate unknown data against it, with inferred TypeScript types as output. No decorators, no class boilerplate.
 
-import HeaderLink from "../../components/HeaderLink.astro";
+```typescript
+import { z } from 'zod';
 
-<HeaderLink href="#" onclick="alert('clicked!')">
-	Embedded component in MDX
-</HeaderLink>
+const UserSchema = z.object({
+  id: z.string().uuid(),
+  email: z.string().email(),
+  age: z.number().int().min(0),
+});
 
-## More Links
+type User = z.infer<typeof UserSchema>;
 
-- [MDX Syntax Documentation](https://mdxjs.com/docs/what-is-mdx)
-- [Astro Usage Documentation](https://docs.astro.build/en/guides/markdown-content/#markdown-and-mdx-pages)
-- **Note:** [Client Directives](https://docs.astro.build/en/reference/directives-reference/#client-directives) are still required to create interactive components. Otherwise, all components in your MDX will render as static HTML (no JavaScript) by default.
+const result = UserSchema.safeParse(rawData);
+if (result.success) {
+  // result.data is typed as User
+}
+```
+
+I use it at every system boundary: API responses, environment variables, form submissions.
+
+## Biome — linting and formatting
+
+[Biome](https://biomejs.dev/) replaces ESLint and Prettier with a single fast tool written in Rust. Setup is one config file, performance is dramatically better than the JS equivalents on large codebases, and the error messages are clear.
+
+```bash
+npx @biomejs/biome check --apply src/
+```
+
+Worth the migration cost if you're still running ESLint + Prettier separately.
+
+## Mise — language version management
+
+[Mise](https://mise.jdx.dev/) (formerly rtx) manages runtime versions — Node, Python, Go, whatever — using a `.mise.toml` file in the project root. Faster than nvm, supports more runtimes, and works declaratively so the version is pinned in version control.
+
+```toml
+# .mise.toml
+[tools]
+node = "22"
+```
+
+Run `mise install` and you're done. No shell profile modifications, no weird shim behavior.
+
+## Ghostty — terminal emulator
+
+[Ghostty](https://ghostty.org/) is a fast, native terminal emulator built by Mitchell Hashimoto. GPU-accelerated rendering, native platform integration (tabs, fonts, colors), and noticeably snappier than Electron-based alternatives.
+
+Not essential if your current terminal works — but if you spend a lot of time in the terminal, the speed difference is noticeable.
+
+---
+
+The common thread: each of these tools does one thing well, has good defaults, and gets out of the way. That's the bar worth holding any developer tool to.

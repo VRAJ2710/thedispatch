@@ -1,0 +1,41 @@
+name: Build Market Calm Android APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - market-calm-android-final
+    paths:
+      - "market-calm-mobile/**"
+      - ".github/workflows/build-market-calm-android.yml"
+
+jobs:
+  build:
+    name: Build debug APK
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Build APK
+        working-directory: market-calm-mobile
+        run: gradle assembleDebug --stacktrace
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: MarketCalmCheck-debug-apk
+          path: market-calm-mobile/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error

@@ -33,7 +33,9 @@
 		"check": "astro build && tsc && wrangler deploy --dry-run",
 		"deploy": "wrangler deploy",
 		"dev": "astro dev",
-		"preview": "astro build && wrangler dev"
+		"preview": "astro build && wrangler dev",
+		"test": "npm run test:billing",
+		"test:billing": "npm test --prefix dispatch-web"
 	},
 	"type": "module"
 }

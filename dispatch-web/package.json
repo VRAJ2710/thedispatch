@@ -1,0 +1,9 @@
+{
+  "name": "dispatch-web-billing",
+  "private": true,
+  "description": "Portable billing reliability helpers for the live Replit Dispatch Markets server.",
+  "type": "commonjs",
+  "scripts": {
+    "test": "node --test test/*.test.js"
+  }
+}
